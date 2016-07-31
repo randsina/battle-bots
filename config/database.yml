@@ -7,10 +7,12 @@ default: &default
 
 development:
   <<: *default
+  username: postgres
 
 test:
   <<: *default
   database: four_color_bot_test
+  username: postgres
 
 production:
   <<: *default
