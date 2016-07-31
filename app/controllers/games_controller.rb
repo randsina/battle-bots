@@ -2,24 +2,28 @@ class GamesController < ApplicationController
 
   def create
     p params
-    render json: {status: :ok}
+    @figures_count = params[:figures_count]
+    render json: {status: :ok, }
   end
 
   def show
     p params
+    @figures_count = params[:figures_count]
     render json: {
       status: :ok,
-      figure: 0
+      figure: rand(@figures_count)
     }
   end
 
   def update
     p params
+    @figures_count = params[:figures_count]
     render json: {status: :ok}
   end
 
   def destroy
     p params
+    @figures_count = params[:figures_count]
     render json: {status: :ok}
   end
 
