@@ -4,23 +4,34 @@ class GamesController < ApplicationController
     hash = params[:board][:cells].flatten.inject(Hash.new(0)) { |h, e| h[e] += 1 ; h }
     neighbours = set_neighbours(params[:board][:cells])
     hash.deep_merge!(neighbours) { |key, old_value, new_value| [old_value, new_value] }
-    @map = Map.create(locations: hash, game_id: params[:id])
+    @map = Wall.create(locations: hash, game_id: params[:id], width: params[:board][:width], height: params[:board][:height])
     render json: {status: :ok}
   end
 
   def show
     p params
-    @map = Map.find_by(game_id: params[:id])
+    @map = Wall.find_by(game_id: params[:id])
     p '#' * 200
     p 'Method show'
     p @map.id
     true_cell = nil
-    sorted_locations = @map.locations.sort_by {|_key, value| -value[0]}
-    sorted_locations.each do |cell|
-      used_colors = cell[1][2].to_a
-      p "cell - #{cell}"
-      true_cell = cell[0]
-      break if used_colors.exclude?(params[:color].to_i)
+
+    if @map.width > 50
+      sorted_locations = @map.locations
+      sorted_locations.each do |cell|
+        used_colors = cell[1][2].to_a
+        p "cell - #{cell}"
+        true_cell = cell[0]
+        break if used_colors.exclude?(params[:color].to_i) && cell[1][0] > 0
+      end
+    else
+      sorted_locations = @map.locations.sort_by {|_key, value| -value[0]}
+      sorted_locations.each do |cell|
+        used_colors = cell[1][2].to_a
+        p "cell - #{cell}"
+        true_cell = cell[0]
+        break if used_colors.exclude?(params[:color].to_i)
+      end
     end
     p "True cell - #{true_cell}"
     p '#' * 200
@@ -31,7 +42,7 @@ class GamesController < ApplicationController
   end
 
   def update
-    @map = Map.find_by(game_id: params[:id])
+    @map = Wall.find_by(game_id: params[:id])
     figure = params[:figure]
     neighbours = @map.locations[figure][1]
     @map.locations[figure][0] = -1
